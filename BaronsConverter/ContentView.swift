@@ -8,14 +8,53 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var converter = Converter()
+    @State private var historys = [History]()
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        NavigationStack {
+            Form {
+                Section {
+                    Text(converter.outputAmount, format: .currency(code: converter.outputCurrency.name))
+                        .font(.largeTitle)
+                        
+                }
+                
+                Picker(selection: $converter.inputCurrency) {
+                    ForEach(Currency.allCases) { currency in
+                        Text("\(currency.flag) \(currency.name)").tag(currency)
+                    }
+                } label: {
+                    Text("From:")
+                }
+                
+                Picker(selection: $converter.outputCurrency) {
+                    ForEach(Currency.allCases) { currency in
+                        Text("\(currency.flag) \(currency.name)").tag(currency)
+                    }
+                } label: {
+                    Text("To:")
+                }
+                
+                TextField("Amount", value: $converter.amount, format: .number)
+                
+                Section("History") {
+                    List(historys) { history in
+                        HStack {
+                            Text("\(history.conversion.amount.formatted(.currency(code:history.conversion.inputCurrency.name)))")
+                            Spacer()
+                            Image(systemName: "arrowshape.forward.fill")
+                            Spacer()
+                            Text("\(history.conversion.outputAmount.formatted(.currency(code: history.conversion.outputCurrency.name)))")
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Baron's Converter")
+            .onSubmit {
+                historys.insert(History(conversion: converter), at: 0)
+            }
         }
-        .padding()
     }
 }
 
