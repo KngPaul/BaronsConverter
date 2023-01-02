@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var converter = Converter()
     @State private var historys = [History]()
+    @FocusState private var amountIsFocused: Bool
     
     var body: some View {
         NavigationStack {
@@ -37,6 +38,8 @@ struct ContentView: View {
                 }
                 
                 TextField("Amount", value: $converter.amount, format: .number)
+                    .keyboardType(.decimalPad)
+                    .focused($amountIsFocused)
                 
                 Section("History") {
                     List(historys) { history in
@@ -53,6 +56,16 @@ struct ContentView: View {
             .navigationTitle("Baron's Converter")
             .onSubmit {
                 historys.insert(History(conversion: converter), at: 0)
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    
+                    Button("Done") {
+                        amountIsFocused = false
+                        historys.insert(History(conversion: converter), at: 0)
+                    }
+                }
             }
         }
     }
